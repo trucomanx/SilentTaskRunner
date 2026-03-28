@@ -30,11 +30,13 @@ CONFIG_PATH = os.path.join( os.path.expanduser("~"),
                             "config.json" )
 
 DEFAULT_CONTENT={   
-    "toolbar_configure": "Open config file",
-    "toolbar_about": "🌟 About",
-    "toolbar_coffee": "☕ Buy me a coffee: TrucomanX",
-    "window_width": 1024,
-    "window_height": 800
+    "traymenu_open": "📖 Open",
+    "traymenu_configure": "📝 Open config file",
+    "traymenu_about": "🌟 About",
+    "traymenu_coffee": "☕ Buy me a coffee: TrucomanX",
+    "traymenu_exit": "❌ Exit",
+    "window_width": 512,
+    "window_height": 400
 }
 
 configure.verify_default_config(CONFIG_PATH,default_content=DEFAULT_CONTENT)
@@ -63,7 +65,14 @@ class Scheduler(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("Task Scheduler")
+        self.setWindowTitle(about.__program_name__)
+        self.resize(CONFIG["window_width"], CONFIG["window_height"])
+        
+        ## Icon
+        # Get base directory for icons
+        self.icon_path = resource_path("icons", "logo.png")
+        self.setWindowIcon(QIcon(self.icon_path)) 
+        
         self.tasks = load_tasks()
         self.last_run = {}
 
@@ -202,7 +211,7 @@ class TrayApp(QApplication):
 
         ########################################################################
         ########################################################################
-        self.open_action = QAction("Open")
+        self.open_action = QAction(CONFIG["traymenu_open"])
         self.open_action.triggered.connect(self.show_window)
         self.tray_menu.addAction(self.open_action)
 
@@ -212,15 +221,15 @@ class TrayApp(QApplication):
         ########################################################################
 
         # Add actions to program_information_submenu
-        self.edit_config_action = QAction(QIcon.fromTheme("applications-utilities"), CONFIG["toolbar_configure"], self)
+        self.edit_config_action = QAction(QIcon.fromTheme("applications-utilities"), CONFIG["traymenu_configure"], self)
         self.edit_config_action.triggered.connect(self.open_configure_editor)
         self.tray_menu.addAction(self.edit_config_action)
 
-        self.coffee_action = QAction(QIcon.fromTheme("emblem-favorite"), CONFIG["toolbar_coffee"], self)
+        self.coffee_action = QAction(QIcon.fromTheme("emblem-favorite"), CONFIG["traymenu_coffee"], self)
         self.coffee_action.triggered.connect(self.on_coffee_action_click)
         self.tray_menu.addAction(self.coffee_action)
         
-        self.about_action = QAction(QIcon.fromTheme("help-about"), CONFIG["toolbar_about"], self)
+        self.about_action = QAction(QIcon.fromTheme("help-about"), CONFIG["traymenu_about"], self)
         self.about_action.triggered.connect(self.open_about)
         self.tray_menu.addAction(self.about_action)
         
@@ -229,7 +238,7 @@ class TrayApp(QApplication):
         ########################################################################
         ########################################################################
 
-        self.exit_action = QAction("Exit")
+        self.exit_action = QAction(CONFIG["traymenu_exit"])
         self.exit_action.triggered.connect(self.exit_app)
         self.tray_menu.addAction(self.exit_action)
 
