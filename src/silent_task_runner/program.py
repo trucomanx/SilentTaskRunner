@@ -51,6 +51,7 @@ DEFAULT_CONTENT = {
 
     # Tray menu
     "traymenu_open": "📖 Open",
+    "traymenu_task": "📝 Open task file",
     "traymenu_configure": "📝 Open config file",
     "traymenu_about": "🌟 About",
     "traymenu_coffee": "☕ Buy me a coffee: TrucomanX",
@@ -62,19 +63,38 @@ CONFIG = configure.load_config(CONFIG_PATH)
 
 # ---------------------------------------
 
-FILE = "tasks.json"
+# ---------- Path to config file ----------
+TASKS_PATH = os.path.join(  os.path.expanduser("~"),
+                            ".config", 
+                            about.__package__, 
+                            "tasks.json" )
 
+
+DEFAULT_TASKS_CONTENT = [
+    {
+        "title": "lock session",
+        "time": "02:00",
+        "command": "loginctl lock-session"
+    }
+]
+
+if not os.path.exists(TASKS_PATH):
+    os.makedirs(os.path.dirname(TASKS_PATH), exist_ok=True)
+    with open(TASKS_PATH, "w") as f:
+        json.dump(DEFAULT_TASKS_CONTENT, f, indent=4)
+
+# ---------------------------------------
 
 def load_tasks():
     try:
-        with open(FILE, "r") as f:
+        with open(TASKS_PATH, "r") as f:
             return json.load(f)
     except:
         return []
 
 
 def save_tasks(tasks):
-    with open(FILE, "w") as f:
+    with open(TASKS_PATH, "w") as f:
         json.dump(tasks, f, indent=4)
 
 
@@ -237,7 +257,10 @@ class TrayApp(QApplication):
         ########################################################################
         ########################################################################
 
-        # Add actions to program_information_submenu
+        self.edit_task_action = QAction(QIcon.fromTheme("applications-utilities"), CONFIG["traymenu_task"], self)
+        self.edit_task_action.triggered.connect(self.open_task_editor)
+        self.tray_menu.addAction(self.edit_task_action)
+
         self.edit_config_action = QAction(QIcon.fromTheme("applications-utilities"), CONFIG["traymenu_configure"], self)
         self.edit_config_action.triggered.connect(self.open_configure_editor)
         self.tray_menu.addAction(self.edit_config_action)
@@ -273,13 +296,17 @@ class TrayApp(QApplication):
         self.quit()
 
     def _open_file_in_text_editor(self, filepath):
-        if os.name == 'nt':  # Windows
-            os.startfile(filepath)
-        elif os.name == 'posix':  # Linux/macOS
-            subprocess.run(['xdg-open', filepath])
+        if os.path.exists(filepath):
+            if os.name == 'nt':  # Windows
+                os.startfile(filepath)
+            elif os.name == 'posix':  # Linux/macOS
+                subprocess.run(['xdg-open', filepath])
             
     def open_configure_editor(self):
         self._open_file_in_text_editor(CONFIG_PATH)
+
+    def open_task_editor(self):
+        self._open_file_in_text_editor(TASKS_PATH)
 
     def open_about(self):
         data = {
@@ -302,7 +329,6 @@ class TrayApp(QApplication):
 
 def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)
-    
     '''
     create_desktop_directory()    
     create_desktop_menu()
@@ -325,7 +351,6 @@ def main():
                                 program_name=about.__program_name__)
             return
     '''
-    
     app = TrayApp(sys.argv)
     app.setApplicationName(about.__package__)
     sys.exit(app.exec_())

@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "silent_task_runner"
+version = "0.1.0"
+description = "A lightweight system tray application that silently schedules and executes commands at specified times."
+readme = "README.md"
+authors = [{name = "Fernando Pujaico Rivera", email = "fernando.pujaico.rivera@gmail.com"}]
+maintainers = [{name = "Fernando Pujaico Rivera", email = "fernando.pujaico.rivera@gmail.com"}]
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "GPL-3.0-only WITH Classpath-Exception-2.0 OR BSD-3-Clause"
+license-files = ["LICENSE"]
+keywords = ["writing", "translate"]
+dependencies = [
+    "PyQt5",
+    "deep-consultation"
+]
+
+[project.urls]
+"Bug Reports" = "https://github.com/trucomanx/SilentTaskRunner/issues"
+"Funding" = "https://trucomanx.github.io/en/funding.html"
+"Documentation" = "https://github.com/trucomanx/SilentTaskRunner/tree/main/doc"
+"Source" = "https://github.com/trucomanx/SilentTaskRunner"
+
+[project.scripts]
+"silent-task-runner" = "silent_task_runner.program:main"
+
+[tool.setuptools]
+packages = ["silent_task_runner", "silent_task_runner.modules"]
+
+[tool.setuptools.package-data]
+"silent_task_runner" = ["icons/logo.png"]

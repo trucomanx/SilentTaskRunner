@@ -1,7 +1,0 @@
-[
-    {
-        "title": "lock session",
-        "time": "02:00",
-        "command": "loginctl lock-session"
-    }
-]
