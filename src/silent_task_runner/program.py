@@ -39,6 +39,16 @@ DEFAULT_CONTENT = {
     "label_time": "Time (HH:MM)",
     "label_command": "Command",
 
+    # Placeholders
+    "ph_title": "Enter task title...",
+    "ph_time": "e.g. 14:30",
+    "ph_command": "Command to execute...",
+
+    # Tooltips
+    "tt_title": "Name of the task",
+    "tt_time": "Execution time in HH:MM format",
+    "tt_command": "Shell command that will run",
+
     # Buttons
     "button_add": "Add Task",
     "button_update": "Update Selected",
@@ -87,7 +97,7 @@ if not os.path.exists(TASKS_PATH):
 
 def load_tasks():
     try:
-        with open(TASKS_PATH, "r") as f:
+        with open(TASKS_PATH, "r", encoding="utf-8") as f:
             return json.load(f)
     except:
         return []
@@ -98,6 +108,7 @@ def save_tasks(tasks):
         json.dump(tasks, f, indent=4, ensure_ascii=False)
 
 
+# ---------- UI ----------
 class Scheduler(QWidget):
     def __init__(self):
         super().__init__()
@@ -119,18 +130,28 @@ class Scheduler(QWidget):
         self.list_widget.itemClicked.connect(self.load_task)
         layout.addWidget(self.list_widget)
 
+        # Title
         layout.addWidget(QLabel(CONFIG["label_title"]))
         self.title_input = QLineEdit()
+        self.title_input.setPlaceholderText(CONFIG["ph_title"])
+        self.title_input.setToolTip(CONFIG["tt_title"])
         layout.addWidget(self.title_input)
 
+        # Time
         layout.addWidget(QLabel(CONFIG["label_time"]))
         self.time_input = QLineEdit()
+        self.time_input.setPlaceholderText(CONFIG["ph_time"])
+        self.time_input.setToolTip(CONFIG["tt_time"])
         layout.addWidget(self.time_input)
 
+        # Command
         layout.addWidget(QLabel(CONFIG["label_command"]))
         self.command_input = QLineEdit()
+        self.command_input.setPlaceholderText(CONFIG["ph_command"])
+        self.command_input.setToolTip(CONFIG["tt_command"])
         layout.addWidget(self.command_input)
 
+        # Buttons
         add_btn = QPushButton(CONFIG["button_add"])
         add_btn.clicked.connect(self.add_task)
         layout.addWidget(add_btn)
@@ -193,7 +214,7 @@ class Scheduler(QWidget):
         self.tasks[row] = {
             "title": self.title_input.text(),
             "time": self.time_input.text(),
-            "command": self.command_input.text()
+            "command": self.command_input.text().strip()
         }
 
         save_tasks(self.tasks)
@@ -220,7 +241,7 @@ class Scheduler(QWidget):
             last = self.last_run.get(i)
 
             if task["time"] == now and last != now:
-                print("\n>>",task["command"].strip(),"\n")
+                print("\n>>", task["command"].strip(), "\n")
                 subprocess.Popen(task["command"].strip(), shell=True)
                 self.last_run[i] = now
 
@@ -230,6 +251,7 @@ class Scheduler(QWidget):
         self.hide()
 
 
+# ---------- TRAY ----------
 class TrayApp(QApplication):
     def __init__(self, argv):
         super().__init__(argv)
@@ -328,6 +350,7 @@ class TrayApp(QApplication):
         QDesktopServices.openUrl(QUrl("https://ko-fi.com/trucomanx"))
 
 
+# ---------- MAIN ----------
 def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     
