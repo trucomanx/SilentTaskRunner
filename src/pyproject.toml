@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "silent_task_runner"
-version = "0.1.0"
+version = "0.1.1"
 description = "A lightweight system tray application that silently schedules and executes commands at specified times."
 readme = "README.md"
 authors = [{name = "Fernando Pujaico Rivera", email = "fernando.pujaico.rivera@gmail.com"}]

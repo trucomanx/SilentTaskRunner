@@ -80,8 +80,8 @@ DEFAULT_TASKS_CONTENT = [
 
 if not os.path.exists(TASKS_PATH):
     os.makedirs(os.path.dirname(TASKS_PATH), exist_ok=True)
-    with open(TASKS_PATH, "w") as f:
-        json.dump(DEFAULT_TASKS_CONTENT, f, indent=4)
+    with open(TASKS_PATH, "w", encoding="utf-8") as f:
+        json.dump(DEFAULT_TASKS_CONTENT, f, indent=4, ensure_ascii=False)
 
 # ---------------------------------------
 
@@ -94,8 +94,8 @@ def load_tasks():
 
 
 def save_tasks(tasks):
-    with open(TASKS_PATH, "w") as f:
-        json.dump(tasks, f, indent=4)
+    with open(TASKS_PATH, "w", encoding="utf-8") as f:
+        json.dump(tasks, f, indent=4, ensure_ascii=False)
 
 
 class Scheduler(QWidget):
@@ -167,7 +167,7 @@ class Scheduler(QWidget):
     def add_task(self):
         title = self.title_input.text()
         time = self.time_input.text()
-        command = self.command_input.text()
+        command = self.command_input.text().strip()
 
         if not title or not time or not command:
             QMessageBox.warning(self, CONFIG["msg_error_title"], CONFIG["msg_error_fill"])
@@ -220,7 +220,8 @@ class Scheduler(QWidget):
             last = self.last_run.get(i)
 
             if task["time"] == now and last != now:
-                subprocess.Popen(task["command"], shell=True)
+                print("\n>>",task["command"].strip(),"\n")
+                subprocess.Popen(task["command"].strip(), shell=True)
                 self.last_run[i] = now
 
     # 👇 NÃO fecha, só esconde
