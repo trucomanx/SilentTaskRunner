@@ -29,19 +29,36 @@ CONFIG_PATH = os.path.join( os.path.expanduser("~"),
                             about.__package__, 
                             "config.json" )
 
-DEFAULT_CONTENT={   
+DEFAULT_CONTENT = {
+    # Window
+    "window_width": 512,
+    "window_height": 400,
+
+    # Labels
+    "label_title": "Title",
+    "label_time": "Time (HH:MM)",
+    "label_command": "Command",
+
+    # Buttons
+    "button_add": "Add Task",
+    "button_update": "Update Selected",
+    "button_remove": "Remove Selected",
+
+    # Messages
+    "msg_error_title": "Error",
+    "msg_error_fill": "Fill all fields!",
+    "msg_error_select": "Select a task!",
+
+    # Tray menu
     "traymenu_open": "📖 Open",
     "traymenu_configure": "📝 Open config file",
     "traymenu_about": "🌟 About",
     "traymenu_coffee": "☕ Buy me a coffee: TrucomanX",
-    "traymenu_exit": "❌ Exit",
-    "window_width": 512,
-    "window_height": 400
+    "traymenu_exit": "❌ Exit"
 }
 
-configure.verify_default_config(CONFIG_PATH,default_content=DEFAULT_CONTENT)
-
-CONFIG=configure.load_config(CONFIG_PATH)
+configure.verify_default_config(CONFIG_PATH, default_content=DEFAULT_CONTENT)
+CONFIG = configure.load_config(CONFIG_PATH)
 
 # ---------------------------------------
 
@@ -71,8 +88,8 @@ class Scheduler(QWidget):
         ## Icon
         # Get base directory for icons
         self.icon_path = resource_path("icons", "logo.png")
-        self.setWindowIcon(QIcon(self.icon_path)) 
-        
+        self.setWindowIcon(QIcon(self.icon_path))
+
         self.tasks = load_tasks()
         self.last_run = {}
 
@@ -82,27 +99,27 @@ class Scheduler(QWidget):
         self.list_widget.itemClicked.connect(self.load_task)
         layout.addWidget(self.list_widget)
 
-        layout.addWidget(QLabel("Title"))
+        layout.addWidget(QLabel(CONFIG["label_title"]))
         self.title_input = QLineEdit()
         layout.addWidget(self.title_input)
 
-        layout.addWidget(QLabel("Time (HH:MM)"))
+        layout.addWidget(QLabel(CONFIG["label_time"]))
         self.time_input = QLineEdit()
         layout.addWidget(self.time_input)
 
-        layout.addWidget(QLabel("Command"))
+        layout.addWidget(QLabel(CONFIG["label_command"]))
         self.command_input = QLineEdit()
         layout.addWidget(self.command_input)
 
-        add_btn = QPushButton("Add Task")
+        add_btn = QPushButton(CONFIG["button_add"])
         add_btn.clicked.connect(self.add_task)
         layout.addWidget(add_btn)
 
-        update_btn = QPushButton("Update Selected")
+        update_btn = QPushButton(CONFIG["button_update"])
         update_btn.clicked.connect(self.update_task)
         layout.addWidget(update_btn)
 
-        remove_btn = QPushButton("Remove Selected")
+        remove_btn = QPushButton(CONFIG["button_remove"])
         remove_btn.clicked.connect(self.remove_task)
         layout.addWidget(remove_btn)
 
@@ -133,7 +150,7 @@ class Scheduler(QWidget):
         command = self.command_input.text()
 
         if not title or not time or not command:
-            QMessageBox.warning(self, "Error", "Fill all fields!")
+            QMessageBox.warning(self, CONFIG["msg_error_title"], CONFIG["msg_error_fill"])
             return
 
         self.tasks.append({
@@ -150,7 +167,7 @@ class Scheduler(QWidget):
         row = self.list_widget.currentRow()
 
         if row < 0:
-            QMessageBox.warning(self, "Error", "Select a task!")
+            QMessageBox.warning(self, CONFIG["msg_error_title"], CONFIG["msg_error_select"])
             return
 
         self.tasks[row] = {
@@ -196,12 +213,12 @@ class TrayApp(QApplication):
     def __init__(self, argv):
         super().__init__(argv)
         self.setQuitOnLastWindowClosed(False)
-        
+
         self.window = Scheduler()
 
         # Get base directory for icons
         self.icon_path = resource_path("icons", "logo.png")
-        
+
         self.tray_icon = QSystemTrayIcon(QIcon(self.icon_path), self)
         self.tray_icon.setVisible(True)
         self.setProperty("tray_icon", self.tray_icon)
@@ -232,7 +249,7 @@ class TrayApp(QApplication):
         self.about_action = QAction(QIcon.fromTheme("help-about"), CONFIG["traymenu_about"], self)
         self.about_action.triggered.connect(self.open_about)
         self.tray_menu.addAction(self.about_action)
-        
+
         self.tray_menu.addSeparator()
         
         ########################################################################
@@ -265,7 +282,7 @@ class TrayApp(QApplication):
         self._open_file_in_text_editor(CONFIG_PATH)
 
     def open_about(self):
-        data={
+        data = {
             "version": about.__version__,
             "package": about.__package__,
             "program_name": about.__program_name__,
@@ -277,11 +294,12 @@ class TrayApp(QApplication):
             "url_funding": about.__url_funding__,
             "url_bugs": about.__url_bugs__
         }
-        show_about_window(data,self.icon_path)
+        show_about_window(data, self.icon_path)
 
     def on_coffee_action_click(self):
         QDesktopServices.openUrl(QUrl("https://ko-fi.com/trucomanx"))
-        
+
+
 def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     
@@ -309,8 +327,9 @@ def main():
     '''
     
     app = TrayApp(sys.argv)
-    app.setApplicationName(about.__package__) 
+    app.setApplicationName(about.__package__)
     sys.exit(app.exec_())
+
 
 if __name__ == "__main__":
     main()
