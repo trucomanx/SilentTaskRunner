@@ -2,7 +2,7 @@
 
 A lightweight system tray application that silently schedules and executes commands at specified times.
 
-![logo](screenshot.png)
+![logo](https://raw.githubusercontent.com/trucomanx/SilentTaskRunner/main/screenshot.png)
 
 ## 1. Installing
 
@@ -24,7 +24,7 @@ silent-task-runner
 ```
 ## 2. More information
 
-If you want more information go to [doc](https://github.com/trucomanx/SilentTaskRunner/blob/main/doc) directory
+If you want more information go to [doc](https://github.com/trucomanx/SilentTaskRunner/blob/main/doc) directory.
 
 ## 3. Buy me a coffee
 
