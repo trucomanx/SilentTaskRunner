@@ -122,6 +122,8 @@ class Scheduler(QWidget):
         self.setWindowIcon(QIcon(self.icon_path))
 
         self.tasks = load_tasks()
+
+        # 🔑 agora usa ID único por task
         self.last_run = {}
 
         layout = QVBoxLayout()
@@ -171,6 +173,10 @@ class Scheduler(QWidget):
         self.timer = QTimer()
         self.timer.timeout.connect(self.check_tasks)
         self.timer.start(20000)
+
+    def get_task_id(self, task):
+        """Gera ID único para cada task"""
+        return f"{task['title']}|{task['time']}|{task['command']}"
 
     def refresh_list(self):
         self.list_widget.clear()
@@ -224,6 +230,13 @@ class Scheduler(QWidget):
     def remove_task(self):
         row = self.list_widget.currentRow()
         if row >= 0:
+            task = self.tasks[row]
+            task_id = self.get_task_id(task)
+
+            # remove histórico também
+            if task_id in self.last_run:
+                del self.last_run[task_id]
+
             self.tasks.pop(row)
             save_tasks(self.tasks)
             self.refresh_list()
@@ -235,15 +248,29 @@ class Scheduler(QWidget):
         self.command_input.clear()
 
     def check_tasks(self):
-        now = datetime.now().strftime("%H:%M")
+        now = datetime.now()
+        today = now.date()
 
-        for i, task in enumerate(self.tasks):
-            last = self.last_run.get(i)
+        for task in self.tasks:
+            task_id = self.get_task_id(task)
+            last = self.last_run.get(task_id)
 
-            if task["time"] == now and last != now:
+            try:
+                task_time = datetime.strptime(task["time"], "%H:%M").time()
+            except ValueError:
+                continue  # ignora formato inválido
+
+            # cria datetime completo para hoje
+            scheduled = datetime.combine(today, task_time)
+
+            # janela de execução (1 minuto)
+            diff = (now - scheduled).total_seconds()
+
+            if 0 <= diff < 60 and last != today:
                 print("\n>>", task["command"].strip(), "\n")
                 subprocess.Popen(task["command"].strip(), shell=True)
-                self.last_run[i] = now
+
+                self.last_run[task_id] = today
 
     # 👇 NÃO fecha, só esconde
     def closeEvent(self, event):

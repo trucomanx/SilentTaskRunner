@@ -1,6 +1,6 @@
 # about.py
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 __package__ = "silent_task_runner"
 __program_name__ = "silent-task-runner"
 __author__ = "Fernando Pujaico Rivera"
